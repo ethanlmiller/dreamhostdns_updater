@@ -6,14 +6,28 @@ WHile Dreamhost has an API, the DNS API doesn't support *updates* to a DNS entry
 delete an entry with a single URL, but not both. This simple Python3 CGI script allows the OPNsense DynDNS plugin
 to update your hostnames on Dreamhost with a single URL (per host, of course).
 
+The script first retrieves the current IP address (in an A record) from Dreamhost, and then updates it only if it has changed.
+This avoids extraneous updates.
+
 ## Usage
 
 This is a CGI script that should run on any CGI-enabled web server that provides the `requests` Python3 package (along with standard packages `uuid` and `cgi`).
-It has been tested on Dreamhost's own web servers, where it works fine. Place it in a directory with the following entries in `.htaccess`:
+It has been tested running as a CGI script on Dreamhost's own web servers. Place it in a directory with the following entries in `.htaccess`:
 ```
 AddHandler cgi-script .cgi
 Options +ExecCGI
 ```
+
+### OPNsense
+
+This web page works with the **Custom** DynDNS provider. The URL you should use is:
+```
+https://path.to.server/.../dreamhostdns_updater.cgi?key=MY_API_KEY&hostname=my.host.name
+```
+You may optionally specify an address to use with `&address=0.1.2.3`. If you don't specify an address, the script will use
+the IP address of the system that sent the request. If you're using OPNsense to do the update, this works correctly as
+long as the request comes from the interface for which you're defining the DNS entry (which it should, if you've set things
+up correctly).
 
 ## Security
 
